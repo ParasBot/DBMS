@@ -1,0 +1,101 @@
+// 1. Create the "student" collection and insert sample data
+db.createCollection("student");
+db.student.insertMany([
+  {
+    Rollno: 101,
+    Name: "John Doe",
+    Class: "TE",
+    Div: "A",
+    Subject: "DS",
+    Marks: 80,
+    Address: "Pune"
+  },
+  {
+    Rollno: 102,
+    Name: "Jane Doe",
+    Class: "TE",
+    Div: "B",
+    Subject: "DS",
+    Marks: 75,
+    Address: "Mumbai"
+  },
+  {
+    Rollno: 103,
+    Name: "David Smith",
+    Class: "TE",
+    Div: "A",
+    Subject: "DBMS",
+    Marks: 90,
+    Address: "Bangalore"
+  },
+  {
+    Rollno: 104,
+    Name: "Alice Johnson",
+    Class: "TE",
+    Div: "B",
+    Subject: "DBMS",
+    Marks: 85,
+    Address: "Pune"
+  },
+  {
+    Rollno: 105,
+    Name: "Bob Williams",
+    Class: "TE",
+    Div: "A",
+    Subject: "SPOS",
+    Marks: 70,
+    Address: "Pune"
+  },
+  {
+    Rollno: 106,
+    Name: "Charlie Brown",
+    Class: "TE",
+    Div: "B",
+    Subject: "SPOS",
+    Marks: 80,
+    Address: "Mumbai"
+  }
+]);
+
+// 2. Query 1: Find the maximum marks of students in DS in the same city
+db.student.aggregate([
+  {
+    $match: { Subject: "DS" }
+  },
+  {
+    $group: {
+      _id: "$Address",
+      maxMarks: { $max: "$Marks" }
+    }
+  }
+]);
+
+// 3. Query 2: Calculate the average of given marks
+db.student.aggregate([
+  {
+    $group: {
+      _id: null,
+      avgMarks: { $avg: "$Marks" }
+    }
+  }
+]);
+
+// 4. Query 3: Insert values into an array in the resulting document
+db.student.aggregate([
+  {
+    $group: {
+      _id: null,
+      avgMarks: { $avg: "$Marks" },
+      cityList: { $addToSet: "$Address" } // Add distinct addresses to an array
+    }
+  }
+]);
+
+// 5. Create a compound index on name and class
+db.student.createIndex({ Name: 1, Class: 1 });
+
+// 6. Create a single index on name
+db.student.createIndex({ Name: 1 });
+
+// 7. Delete the index on name
+db.student.dropIndex({ Name: 1 });
