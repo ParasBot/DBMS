@@ -1,0 +1,151 @@
+// 1. Create the "student" collection and insert sample data
+db.createCollection("student");
+db.student.insertMany([
+  {
+    Rollno: 101,
+    Name: "John Doe",
+    Class: "TE",
+    Div: "A",
+    Subject: "TOC",
+    Marks: 80,
+    Address: "Pune"
+  },
+  {
+    Rollno: 102,
+    Name: "Jane Doe",
+    Class: "TE",
+    Div: "B",
+    Subject: "TOC",
+    Marks: 75,
+    Address: "Mumbai"
+  },
+  {
+    Rollno: 103,
+    Name: "David Smith",
+    Class: "TE",
+    Div: "A",
+    Subject: "DBMS",
+    Marks: 90,
+    Address: "Bangalore"
+  },
+  {
+    Rollno: 104,
+    Name: "Alice Johnson",
+    Class: "TE",
+    Div: "B",
+    Subject: "DBMS",
+    Marks: 85,
+    Address: "Pune"
+  },
+  {
+    Rollno: 105,
+    Name: "Bob Williams",
+    Class: "TE",
+    Div: "A",
+    Subject: "SPOS",
+    Marks: 70,
+    Address: "Pune"
+  },
+  {
+    Rollno: 106,
+    Name: "Charlie Brown",
+    Class: "TE",
+    Div: "B",
+    Subject: "SPOS",
+    Marks: 80,
+    Address: "Mumbai"
+  },
+  {
+    Rollno: 107,
+    Name: "Emily Davis",
+    Class: "TE",
+    Div: "A",
+    Subject: "DBMS",
+    Marks: 80,
+    Address: "Bangalore"
+  },
+  {
+    Rollno: 108,
+    Name: "Frank Wilson",
+    Class: "TE",
+    Div: "B",
+    Subject: "TOC",
+    Marks: 65,
+    Address: "Pune"
+  }
+]);
+
+// 2. Create an index on Subject and Marks for faster queries
+db.student.createIndex({ Subject: 1, Marks: 1 });
+
+// 3. Query 1: Average TOC marks
+db.student.aggregate([
+  {
+    $match: { Subject: "TOC" } 
+  },
+  {
+    $group: {
+      _id: null,
+      avgMarks: { $avg: "$Marks" }
+    }
+  }
+]);
+
+// 4. Query 2: Number of students per division
+db.student.aggregate([
+  {
+    $group: {
+      _id: "$Div",
+      count: { $sum: 1 }
+    }
+  }
+]);
+
+// 5. Query 3: Students in Div B with minimum DBMS marks
+db.student.aggregate([
+  {
+    $match: { Div: "B", Subject: "DBMS" }
+  },
+  {
+    $sort: { Marks: 1 }
+  },
+  {
+    $limit: 1
+  }
+]);
+
+// 6. Query 4: Total SPOS marks for students in Pune
+db.student.aggregate([
+  {
+    $match: { Subject: "SPOS", Address: "Pune" }
+  },
+  {
+    $group: {
+      _id: null,
+      totalMarks: { $sum: "$Marks" }
+    }
+  }
+]);
+
+// 7. Query 5: Division-wise count of students with DBMS marks
+db.student.aggregate([
+  {
+    $match: { Subject: "DBMS" }
+  },
+  {
+    $group: {
+      _id: "$Div",
+      count: { $sum: 1 }
+    }
+  }
+]);
+
+// 8. Query 6: Count of students from each city
+db.student.aggregate([
+  {
+    $group: {
+      _id: "$Address",
+      count: { $sum: 1 }
+    }
+  }
+]);
