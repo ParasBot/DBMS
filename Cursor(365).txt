@@ -1,0 +1,35 @@
+-- Create the table with sample data 
+CREATE TABLE Accounts (
+    account_id NUMBER PRIMARY KEY,
+    account_name VARCHAR2(100),
+    account_status VARCHAR2(20),
+    last_transaction_date DATE
+);
+
+-- Populate the table with sample data 
+INSERT INTO Accounts (account_id, account_name, account_status, last_transaction_date) VALUES (1, 'Alice', 'Inactive', DATE '2022-10-26');
+INSERT INTO Accounts (account_id, account_name, account_status, last_transaction_date) VALUES (2, 'Bob', 'Active', DATE '2023-10-26');
+INSERT INTO Accounts (account_id, account_name, account_status, last_transaction_date) VALUES (3, 'Charlie', 'Inactive', DATE '2022-10-26');
+
+-- PL/SQL block using implicit cursor
+DECLARE
+    l_message VARCHAR2(200);
+BEGIN
+    -- Update the status of inactive accounts
+    UPDATE Accounts
+    SET account_status = 'Active'
+    WHERE account_status = 'Inactive' AND last_transaction_date < SYSDATE - 365;
+
+    -- Display message based on the number of rows affected
+    IF SQL%FOUND THEN
+        IF SQL%ROWCOUNT = 1 THEN
+            l_message := 'One account has been activated.';
+        ELSE
+            l_message := SQL%ROWCOUNT || ' accounts have been activated.';
+        END IF;
+        DBMS_OUTPUT.PUT_LINE(l_message);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No inactive accounts were found.');
+    END IF;
+END;
+/
