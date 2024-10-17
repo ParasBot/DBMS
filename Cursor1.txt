@@ -1,0 +1,59 @@
+-- Create the new table N_RollCall (replace with your actual table schema)
+CREATE TABLE N_RollCall (
+    id NUMBER PRIMARY KEY,
+    name VARCHAR2(100),
+    attendance_date DATE
+);
+
+-- Create the existing table O_RollCall (replace with your actual table schema)
+CREATE TABLE O_RollCall (
+    id NUMBER PRIMARY KEY,
+    name VARCHAR2(100),
+    attendance_date DATE
+);
+
+-- Populate the tables with sample data (replace with your actual data)
+INSERT INTO N_RollCall (id, name, attendance_date) VALUES (1, 'Alice', DATE '2023-10-26');
+INSERT INTO N_RollCall (id, name, attendance_date) VALUES (2, 'Bob', DATE '2023-10-26');
+INSERT INTO N_RollCall (id, name, attendance_date) VALUES (3, 'Charlie', DATE '2023-10-26');
+
+INSERT INTO O_RollCall (id, name, attendance_date) VALUES (1, 'Alice', DATE '2023-10-26');
+INSERT INTO O_RollCall (id, name, attendance_date) VALUES (4, 'David', DATE '2023-10-26');
+
+-- PL/SQL block with parameterized cursor to merge data
+DECLARE
+    -- Declare variables for the parameterized cursor
+    l_id NUMBER;
+    l_name VARCHAR2(100);
+    l_attendance_date DATE;
+
+    -- Declare a cursor with parameters
+    CURSOR cur_n_rollcall (p_id NUMBER) IS
+        SELECT name, attendance_date
+        FROM N_RollCall
+        WHERE id = p_id;
+
+BEGIN
+    -- Loop through the new table N_RollCall
+    FOR rec IN (SELECT id FROM N_RollCall) LOOP
+        -- Open the parameterized cursor with the current id
+        OPEN cur_n_rollcall(rec.id);
+
+        -- Fetch the data from the cursor
+        FETCH cur_n_rollcall INTO l_name, l_attendance_date;
+
+        -- Check if the data exists in the old table O_RollCall
+        IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE id = rec.id) THEN
+            -- Insert the data if it doesn't exist
+            INSERT INTO O_RollCall (id, name, attendance_date)
+            VALUES (rec.id, l_name, l_attendance_date);
+        END IF;
+
+        -- Close the cursor
+        CLOSE cur_n_rollcall;
+    END LOOP;
+
+    -- Commit the changes
+    COMMIT;
+END;
+/
