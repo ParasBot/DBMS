@@ -1,0 +1,59 @@
+-- Create Employee table
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    DateOfBirth DATE NOT NULL,
+    DepartmentID INT,
+    Salary DECIMAL(10,2),
+    CONSTRAINT FK_Employee_Department FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
+);
+
+-- Create Department table
+CREATE TABLE Department (
+    DepartmentID INT PRIMARY KEY IDENTITY(1,1),
+    DepartmentName VARCHAR(50) NOT NULL,
+    Location VARCHAR(100)
+);
+
+-- Create Project table
+CREATE TABLE Project (
+    ProjectID INT PRIMARY KEY IDENTITY(1,1),
+    ProjectName VARCHAR(100) NOT NULL,
+    Description TEXT
+);
+
+-- Create Skill table
+CREATE TABLE Skill (
+    SkillID INT PRIMARY KEY IDENTITY(1,1),
+    SkillName VARCHAR(50) NOT NULL
+);
+
+-- Create EmployeeSkill table
+CREATE TABLE EmployeeSkill (
+    EmployeeID INT,
+    SkillID INT,
+    ProficiencyLevel VARCHAR(20),
+    CONSTRAINT FK_EmployeeSkill_Employee FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+    CONSTRAINT FK_EmployeeSkill_Skill FOREIGN KEY (SkillID) REFERENCES Skill(SkillID)
+);
+
+-- Create ProjectTeam table
+CREATE TABLE ProjectTeam (
+    ProjectID INT,
+    EmployeeID INT,
+    Role VARCHAR(50),
+    CONSTRAINT FK_ProjectTeam_Project FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID),
+    CONSTRAINT FK_ProjectTeam_Employee FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
+);
+-- View for employees with salary above average
+CREATE VIEW HighEarningEmployees AS
+SELECT EmployeeID, FirstName, LastName, Salary
+FROM Employee
+WHERE Salary > (SELECT AVG(Salary) FROM Employee);
+
+-- View for projects with more than 5 team members
+CREATE VIEW LargeProjects AS
+SELECT ProjectID, ProjectName
+FROM Project
+WHERE ProjectID IN (SELECT ProjectID FROM ProjectTeam GROUP BY ProjectID HAVING COUNT(*) > 5);
