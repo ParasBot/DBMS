@@ -1,0 +1,91 @@
+// 1. Create the "student" collection and insert sample data
+db.createCollection("student");
+db.student.insertMany([
+  {
+    Rollno: 101,
+    Name: "John Doe",
+    Class: "TE",
+    Div: "A",
+    Subject: "DBMS",
+    Marks: 85,
+    Address: "Pune"
+  },
+  {
+    Rollno: 102,
+    Name: "Jane Doe",
+    Class: "TE",
+    Div: "B",
+    Subject: "DBMS",
+    Marks: 65,
+    Address: "Mumbai"
+  },
+  {
+    Rollno: 103,
+    Name: "David Smith",
+    Class: "TE",
+    Div: "A",
+    Subject: "DBMS",
+    Marks: 90,
+    Address: "Bangalore"
+  },
+  {
+    Rollno: 104,
+    Name: "Alice Johnson",
+    Class: "TE",
+    Div: "B",
+    Subject: "DBMS",
+    Marks: 45,
+    Address: "Pune"
+  },
+  {
+    Rollno: 105,
+    Name: "Bob Williams",
+    Class: "TE",
+    Div: "A",
+    Subject: "DBMS",
+    Marks: 35,
+    Address: "Pune"
+  },
+  {
+    Rollno: 106,
+    Name: "Charlie Brown",
+    Class: "TE",
+    Div: "B",
+    Subject: "DBMS",
+    Marks: 70,
+    Address: "Mumbai"
+  }
+]);
+
+// 2. Define the map function
+var mapFunction = function() {
+  if (this.Subject === "DBMS") {
+    if (this.Marks >= 70) {
+      emit(this.Name, { Highscores: 1, AverageScores: 0, Failed: 0 });
+    } else if (this.Marks >= 40 && this.Marks < 70) {
+      emit(this.Name, { Highscores: 0, AverageScores: 1, Failed: 0 });
+    } else {
+      emit(this.Name, { Highscores: 0, AverageScores: 0, Failed: 1 });
+    }
+  }
+};
+
+// 3. Define the reduce function
+var reduceFunction = function(key, values) {
+  var result = { Highscores: 0, AverageScores: 0, Failed: 0 };
+  for (var i = 0; i < values.length; i++) {
+    result.Highscores += values[i].Highscores;
+    result.AverageScores += values[i].AverageScores;
+    result.Failed += values[i].Failed;
+  }
+  return result;
+};
+
+// 4. Execute the map-reduce job
+db.student.mapReduce(
+  mapFunction,
+  reduceFunction,
+  {
+    out: { inline: 1 } // Store results in-memory
+  }
+);
