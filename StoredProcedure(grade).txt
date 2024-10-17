@@ -1,0 +1,44 @@
+-- Create the table to store student data (you'll need this to actually store marks)
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY,
+    StudentName VARCHAR(100),
+    Marks INT
+);
+
+-- Create the stored procedure proc_Grade
+CREATE PROCEDURE proc_Grade (@marks INT)
+AS
+BEGIN
+    IF @marks <= 1500 AND @marks >= 990
+    BEGIN
+        SELECT 'Distinction' AS Category;
+    END
+    ELSE IF @marks >= 900 AND @marks <= 989
+    BEGIN
+        SELECT 'First Class' AS Category;
+    END
+    ELSE IF @marks >= 825 AND @marks <= 899
+    BEGIN
+        SELECT 'Higher Second Class' AS Category;
+    END
+    ELSE
+    BEGIN
+        SELECT 'Other' AS Category;
+    END
+END;
+GO
+
+-- Insert some sample student data
+INSERT INTO Students (StudentID, StudentName, Marks) VALUES
+    (1, 'John Doe', 1000),
+    (2, 'Jane Doe', 950),
+    (3, 'Peter Pan', 850),
+    (4, 'Alice Wonderland', 700);
+
+-- Example: Use the stored procedure to get a student's grade
+DECLARE @studentID INT = 1;
+DECLARE @studentMarks INT;
+SELECT @studentMarks = Marks FROM Students WHERE StudentID = @studentID;
+
+EXEC proc_Grade @studentMarks;
+GO
