@@ -1,0 +1,85 @@
+// 1. Create the "student" collection and insert sample data
+db.createCollection("student");
+db.student.insertMany([
+  {
+    _id: 1,
+    first_name: "John",
+    last_name: "Doe",
+    gender: "Male",
+    age: 19,
+    class: "TE A",
+    grd_point: 33,
+    city: "Bangalore",
+    state: "KA",
+    course: "B.Tech"
+  },
+  {
+    _id: 2,
+    first_name: "Jane",
+    last_name: "Doe",
+    gender: "Female",
+    age: 20,
+    class: "TE B",
+    grd_point: 35,
+    city: "Mumbai",
+    state: "MH",
+    course: "B.Tech"
+  },
+  {
+    _id: 3,
+    first_name: "David",
+    last_name: "Smith",
+    gender: "Male",
+    age: 18,
+    class: "TE A",
+    grd_point: 31,
+    city: "Bangalore",
+    state: "KA",
+    course: "B.Tech"
+  },
+  {
+    _id: 4,
+    first_name: "Riyansh",
+    last_name: "Soniminde",
+    gender: "Male",
+    age: 19,
+    class: "TE A",
+    grd_point: 32,
+    city: "Pune",
+    state: "MH",
+    course: "B.Tech"
+  },
+  {
+    _id: 5,
+    first_name: "Rahul",
+    last_name: "Jadhav",
+    gender: "Male",
+    age: 20,
+    class: "TE B",
+    grd_point: 30,
+    city: "Mumbai",
+    state: "MH",
+    course: "B.Tech"
+  }
+]);
+
+// 2. Query 1: Find students who are male or have grd_point >= 31
+db.student.find({
+  $or: [
+    { gender: "Male" },
+    { grd_point: { $gte: 31 } }
+  ]
+});
+
+// 3. Query 2: Update age to 20 for Riyansh Soniminde
+db.student.updateOne({ first_name: "Riyansh" }, { $set: { age: 20 } });
+
+// 4. Query 3: Update or save city to nagpur and state to MH for Soniminde
+db.student.updateMany(
+  { last_name: "Soniminde" },
+  { $set: { city: "nagpur", state: "MH" } },
+  { upsert: true } 
+);
+
+// 5. Query 4: Delete students from Karnataka (KA)
+db.student.deleteMany({ state: "KA" });
