@@ -1,0 +1,62 @@
+-- Create the Orders table
+CREATE TABLE Orders (
+    Order_no INT PRIMARY KEY,
+    cust INT,
+    product VARCHAR(50),
+    Quantity INT,
+    amount DECIMAL(10,2),
+    Disc DECIMAL(10,2),
+    FOREIGN KEY (cust) REFERENCES Customers(Cust_No)
+);
+
+-- Create the Customers table
+CREATE TABLE Customers (
+    Cust_No INT PRIMARY KEY,
+    Company VARCHAR(50),
+    Cust_Rep INT,
+    Credit_Limit DECIMAL(10,2),
+    FOREIGN KEY (Cust_Rep) REFERENCES Sales_Representative(Rep_no)
+);
+
+-- Create the Sales_Representative table
+CREATE TABLE Sales_Representative (
+    Rep_no INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Re_office VARCHAR(50),
+    Quota DECIMAL(10,2),
+    sales DECIMAL(10,2)
+);
+
+-- Query 1: List for each customer : customer name, credit limit, rep name serving the customer and rep sales.
+SELECT c.Company AS "Customer Name", c.Credit_Limit AS "Credit Limit", sr.Name AS "Sales Representative Name", sr.sales AS "Sales Representative Sales"
+FROM Customers c
+JOIN Sales_Representative sr ON c.Cust_Rep = sr.Rep_no;
+
+-- Query 2: List all orders showing number and amount, and name and credit limit of customer.
+SELECT o.Order_no AS "Order Number", o.amount AS "Order Amount", c.Company AS "Customer Name", c.Credit_Limit AS "Credit Limit"
+FROM Orders o
+JOIN Customers c ON o.cust = c.Cust_No;
+
+-- Query 3: Find the product wise sale amount of products which exceeds $12000.
+SELECT product, SUM(amount) AS "Total Sale Amount"
+FROM Orders
+GROUP BY product
+HAVING SUM(amount) > 12000;
+
+-- Query 4: Find the names of amount, names of customers and names of representatives who have been involved in the sale of software.
+SELECT o.amount AS "Order Amount", c.Company AS "Customer Name", sr.Name AS "Sales Representative Name"
+FROM Orders o
+JOIN Customers c ON o.cust = c.Cust_No
+JOIN Sales_Representative sr ON c.Cust_Rep = sr.Rep_no
+WHERE o.product = 'Software';
+
+-- Query 5: Find the credit limit of company and the discount it has received
+SELECT c.Company AS "Company Name", c.Credit_Limit AS "Credit Limit", o.Disc AS "Discount Received"
+FROM Customers c
+JOIN Orders o ON c.Cust_No = o.cust;
+
+-- Query 6: Find the sales representatives who work in the same office.
+SELECT sr1.Name AS "Sales Representative 1", sr2.Name AS "Sales Representative 2"
+FROM Sales_Representative sr1
+JOIN Sales_Representative sr2 ON sr1.Re_office = sr2.Re_office
+WHERE sr1.Rep_no <> sr2.Rep_no;
