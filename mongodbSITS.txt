@@ -1,0 +1,72 @@
+// 1. Create the "SITS" database
+use SITS;
+
+// 2. Create the "Teachers" collection
+db.createCollection("Teachers");
+
+// 3. Insert sample data into the "Teachers" collection
+db.Teachers.insertMany([
+  { Tname: "John Doe", dno: 10, dname: "Computer Science", experience: 5, salary: 60000, date_of_joining: ISODate("2018-07-15") },
+  { Tname: "Jane Doe", dno: 10, dname: "Computer Science", experience: 3, salary: 55000, date_of_joining: ISODate("2020-01-20") },
+  { Tname: "David Smith", dno: 20, dname: "Electrical Engineering", experience: 8, salary: 70000, date_of_joining: ISODate("2015-04-05") },
+  { Tname: "Alice Johnson", dno: 20, dname: "Electrical Engineering", experience: 2, salary: 45000, date_of_joining: ISODate("2021-09-10") },
+  { Tname: "Bob Williams", dno: 30, dname: "Mechanical Engineering", experience: 10, salary: 80000, date_of_joining: ISODate("2013-02-12") }
+]);
+
+// 4. Create the "Students" collection
+db.createCollection("Students");
+
+// 5. Insert sample data into the "Students" collection
+db.Students.insertMany([
+  { Sname: "Rahul", roll_no: 101, class: "TE" },
+  { Sname: "Riya", roll_no: 102, class: "TE" },
+  { Sname: "Amit", roll_no: 103, class: "BE" },
+  { Sname: "Priya", roll_no: 104, class: "BE" }
+]);
+
+// 6. Query 1: Department-wise average salary
+db.Teachers.aggregate([
+  { $group: { _id: "$dname", avgSalary: { $avg: "$salary" } } }
+]);
+
+// 7. Query 2: Number of employees in each department
+db.Teachers.aggregate([
+  { $group: { _id: "$dname", count: { $sum: 1 } } }
+]);
+
+// 8. Query 3: Department-wise total salary for departments with total salary >= 50000
+db.Teachers.aggregate([
+  { $group: { _id: "$dname", totalSalary: { $sum: "$salary" } } },
+  { $match: { totalSalary: { $gte: 50000 } } }
+]);
+
+// 9. Query 4: Using max, min, etc. operators
+// Find the teacher with the highest salary
+db.Teachers.aggregate([
+  { $group: { _id: null, maxSalary: { $max: "$salary" } } }
+]);
+
+// Find the teacher with the least experience
+db.Teachers.aggregate([
+  { $group: { _id: null, minExperience: { $min: "$experience" } } }
+]);
+
+// Find the latest date of joining among teachers
+db.Teachers.aggregate([
+  { $group: { _id: null, latestJoiningDate: { $max: "$date_of_joining" } } }
+]);
+
+// 10. Create a unique index on "Tname" for "Teachers" collection
+db.Teachers.createIndex({ Tname: 1 }, { unique: true });
+
+// 11. Create a compound index on "dno" and "dname" for "Teachers" collection
+db.Teachers.createIndex({ dno: 1, dname: 1 });
+
+// 12. Show all indexes in the "SITS" database
+db.getIndexes();
+
+// 13. Show all indexes in the "Teachers" collection
+db.Teachers.getIndexes();
+
+// 14. Show all indexes in the "Students" collection
+db.Students.getIndexes();
