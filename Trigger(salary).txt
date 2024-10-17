@@ -1,0 +1,28 @@
+-- Create the Emp table
+CREATE TABLE Emp (
+    e_no NUMBER PRIMARY KEY,
+    e_name VARCHAR2(100),
+    salary NUMBER
+);
+
+-- Create the Tracking table
+CREATE TABLE Tracking (
+    e_no NUMBER,
+    salary NUMBER
+);
+
+-- Create a BEFORE INSERT OR UPDATE trigger on Emp table
+CREATE OR REPLACE TRIGGER Emp_Before_Insert_Update
+BEFORE INSERT OR UPDATE ON Emp
+FOR EACH ROW
+BEGIN
+    -- Check if salary is less than 50,000 for INSERT or UPDATE
+    IF :NEW.salary < 50000 THEN
+        -- Reject the operation and raise an error
+        RAISE_APPLICATION_ERROR(-20001, 'Salary cannot be less than 50,000.');
+    END IF;
+
+    -- Store the new values in Tracking table
+    INSERT INTO Tracking (e_no, salary) VALUES (:NEW.e_no, :NEW.salary);
+END;
+/
