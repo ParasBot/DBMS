@@ -1,0 +1,89 @@
+
+create database Property;
+show databases;
+use Property;
+create table branch(
+BranchNo int Not Null,
+Street varchar(50),
+city varchar(40),
+Postcode int,
+Primary key(BranchNo)
+);
+create table Staff(
+StaffNo int Auto_Increment,
+Fname varchar(40),
+Lname varchar(40),
+Rank varchar(10),
+Gender varchar(10),
+DOB date,
+Salary int,
+BranchNo int,
+Primary Key(StaffNo),
+Foreign Key(BranchNo)
+);
+create table Staff(
+StaffNo int, Fname varchar(40), Lname varchar(40), Position
+varchar(10), Gender varchar(10), DOB date, Salary int,
+BranchNo int, PRIMARY KEY(StaffNo), FOREIGN KEY(BranchNo) REFERENCES
+branch(BranchNo)
+);
+CREATE TABLE PropertyforRent(
+PropertyNo int,
+Street varchar(40),
+City varchar(40),
+Postcode int,
+Rooms int,
+Rent int,
+OwnerNo int,
+StaffNo int,
+BranchNo int,
+PRIMARY KEY(PropertyNo),
+FOREIGN KEY(StaffNo) REFERENCES Staff(StaffNo),
+FOREIGN KEY(BranchNo) REFERENCES branch(BranchNo)
+);
+create table Client(
+CUID int,
+Fname varchar(40),
+Lname varchar(40),
+Rent int,
+PRIMARY KEY(CUID)
+);
+create table PrivateOwner(
+OUID int,
+Fname varchar(40),
+Lname varchar(40),
+Address varchar(50)
+);
+show tables;
+select * from branch;
+select * from Staff;
+select * from PropertyforRent;
+select * from Client;
+select * from PrivateOwner;
+insert into Staff(StaffNo,Fname,Lname,Position,Gender,DOB,Salary,BranchNo)values(13,'Siddhesh','Jondhale','Salesman','Male',20040101,30000,1);
+select * from Staff;
+UPDATE Staff Set Lname='Shinde' WHERE StaffNo=11;
+select * from Staff;
+select * from branch;
+UPDATE branch Set Postcode=411212 WHERE BranchNo=1;
+select * from branch;
+insert into branch(BranchNo,Street,city,Postcode)values(3,'Tilak Road','Pune',411041);
+select * from branch;
+DELETE FROM branch WHERE BranchNo=3;
+select * from branch;
+select * from Staff where Fname LIKE '%a%a%';
+select * from Staff;
+insert into Staff values(14,'Saurabh','Mojad','CEO','Male',20041117,100000,1);
+select * from Staff;
+select * from Staff where Fname LIKE '%a%a%';
+select * from Staff where Fname LIKE '%A%A%';
+SELECT Max(Salary) AS HighestSalary FROM Staff;
+SELECT Salary FROM Staff GROUP BY Salary ORDER BY Salary desc;
+select * from Client;
+select * from PrivateOwner;
+insert into Client values(98537,'Yash','Borse',50000);
+select * from Client;
+select Fname from Client WHERE Fname IN (select Fname from PrivateOwner);
+select Fname from PrivateOwner WHERE Fname NOT IN (select Fname from Client);
+insert into PrivateOwner values(159,'Jack','Sons','USA');
+select * from PrivateOwner;
