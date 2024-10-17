@@ -1,0 +1,81 @@
+// 1. Create the "student" collection and insert sample data
+db.createCollection("student");
+db.student.insertMany([
+  {
+    _id: 1,
+    first_name: "John",
+    last_name: "Doe",
+    gender: "Male",
+    age: 19,
+    class: "TE A",
+    grd_point: 33,
+    city: "Bangalore",
+    course: "B.Tech"
+  },
+  {
+    _id: 2,
+    first_name: "Jane",
+    last_name: "Doe",
+    gender: "Female",
+    age: 20,
+    class: "TE B",
+    grd_point: 35,
+    city: "Mumbai",
+    course: "B.Tech"
+  },
+  {
+    _id: 3,
+    first_name: "David",
+    last_name: "Smith",
+    gender: "Male",
+    age: 18,
+    class: "TE A",
+    grd_point: 31,
+    city: "Bangalore",
+    course: "B.Tech"
+  },
+  {
+    _id: 4,
+    first_name: "Bhakti",
+    last_name: "Patil",
+    gender: "Female",
+    age: 19,
+    class: "TE A",
+    grd_point: 32,
+    city: "Pune",
+    course: "B.Tech"
+  },
+  {
+    _id: 5,
+    first_name: "Rahul",
+    last_name: "Jadhav",
+    gender: "Male",
+    age: 20,
+    class: "TE B",
+    grd_point: 30,
+    city: "Mumbai",
+    course: "B.Tech"
+  }
+]);
+
+// 2. Query 1: Find students who are male, in TE A, and have grd_point >= 31
+db.student.find({
+  gender: "Male",
+  class: "TE A",
+  grd_point: { $gte: 31 }
+});
+
+// 3. Query 2: Find students from Bangalore who are 19 years old
+db.student.find({
+  city: "Bangalore",
+  age: 19
+});
+
+// 4. Query 3: Update the course to "MCA" for Bhakti Patil
+db.student.updateOne({ first_name: "Bhakti" }, { $set: { course: "MCA" } });
+
+// 5. Query 4: Delete students who are 18 years old and male
+db.student.deleteMany({ age: 18, gender: "Male" });
+
+// 6. Query 5: Delete students with last name Jadhav in TE B
+db.student.deleteMany({ last_name: "Jadhav", class: "TE B" });
