@@ -1,0 +1,38 @@
+// 1. Create the "City" collection and insert sample data
+db.createCollection("City");
+db.City.insertMany([
+  { cityname: "Mumbai", area: 603.4, population: 12442373 },
+  { cityname: "Delhi", area: 1484.1, population: 11007835 },
+  { cityname: "Bangalore", area: 709.0, population: 8443675 },
+  { cityname: "Chennai", area: 426.0, population: 4646732 },
+  { cityname: "Pune", area: 515.7, population: 3115431 },
+  { cityname: "Hyderabad", area: 650.0, population: 3499682 }
+]);
+
+// 2. Define the map function
+var mapFunction = function() {
+  if (this.population < 1000000) {
+    emit(this.cityname, { LOW_POPULATED: 1, HIGHLY_POPULATED: 0 });
+  } else {
+    emit(this.cityname, { LOW_POPULATED: 0, HIGHLY_POPULATED: 1 });
+  }
+};
+
+// 3. Define the reduce function
+var reduceFunction = function(key, values) {
+  var result = { LOW_POPULATED: 0, HIGHLY_POPULATED: 0 };
+  for (var i = 0; i < values.length; i++) {
+    result.LOW_POPULATED += values[i].LOW_POPULATED;
+    result.HIGHLY_POPULATED += values[i].HIGHLY_POPULATED;
+  }
+  return result;
+};
+
+// 4. Execute the map-reduce job
+db.City.mapReduce(
+  mapFunction,
+  reduceFunction,
+  {
+    out: { inline: 1 } // Store results in-memory
+  }
+);
