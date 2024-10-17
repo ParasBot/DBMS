@@ -1,0 +1,65 @@
+-- Create the Orders table
+CREATE TABLE Orders (
+    Order_no INT PRIMARY KEY,
+    cust INT,
+    product VARCHAR(50),
+    Quantity INT,
+    amount DECIMAL(10,2),
+    Disc DECIMAL(10,2),
+    FOREIGN KEY (cust) REFERENCES Customers(Cust_No)
+);
+
+-- Create the Customers table
+CREATE TABLE Customers (
+    Cust_No INT PRIMARY KEY,
+    Company VARCHAR(50),
+    Cust_Rep INT,
+    Credit_Limit DECIMAL(10,2),
+    FOREIGN KEY (Cust_Rep) REFERENCES Sales_Representative(Rep_no)
+);
+
+-- Create the Sales_Representative table
+CREATE TABLE Sales_Representative (
+    Rep_no INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Re_office VARCHAR(50),
+    Quota DECIMAL(10,2),
+    sales DECIMAL(10,2)
+);
+
+-- Query 1: List for each customer : customer name, their rep’s name, their rep’s office number.
+SELECT c.Company AS "Customer Name", sr.Name AS "Sales Representative Name", sr.Re_office AS "Sales Representative Office"
+FROM Customers c
+JOIN Sales_Representative sr ON c.Cust_Rep = sr.Rep_no;
+
+-- Query 2: List orders over $25,000 including the name of the salesperson who took the order and the name of the customer who placed it.
+SELECT o.Order_no, c.Company AS "Customer Name", sr.Name AS "Sales Representative Name", o.amount
+FROM Orders o
+JOIN Customers c ON o.cust = c.Cust_No
+JOIN Sales_Representative sr ON c.Cust_Rep = sr.Rep_no
+WHERE o.amount > 25000;
+
+-- Query 3: Find the products which have been sold to TCS.
+SELECT DISTINCT product
+FROM Orders o
+JOIN Customers c ON o.cust = c.Cust_No
+WHERE c.Company = 'TCS';
+
+-- Query 4: Find company which has been offered maximum discount.
+SELECT c.Company AS "Company Name", MAX(o.Disc) AS "Maximum Discount"
+FROM Orders o
+JOIN Customers c ON o.cust = c.Cust_No
+GROUP BY c.Company
+ORDER BY MAX(o.Disc) DESC
+LIMIT 1;
+
+-- Query 5: Find the sales representatives who work in the same office.
+SELECT sr1.Name AS "Sales Representative 1", sr2.Name AS "Sales Representative 2"
+FROM Sales_Representative sr1
+JOIN Sales_Representative sr2 ON sr1.Re_office = sr2.Re_office
+WHERE sr1.Rep_no <> sr2.Rep_no;
+
+-- Query 6: Find the credit limit of company and the discount it has received
+SELECT c.Company AS "Company Name", c.Credit_Limit AS "Credit Limit", o.Disc AS "Discount Received"
+FROM Customers c
+JOIN Orders o ON c.Cust_No = o.cust;
