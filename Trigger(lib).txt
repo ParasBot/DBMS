@@ -1,0 +1,40 @@
+-- Create the Library table
+CREATE TABLE Library (
+    book_id NUMBER PRIMARY KEY,
+    book_name VARCHAR2(100),
+    author VARCHAR2(100),
+    publication_date DATE
+);
+
+-- Create the Library_Audit table to store audit records
+CREATE TABLE Library_Audit (
+    audit_id NUMBER PRIMARY KEY,
+    book_id NUMBER,
+    operation VARCHAR2(10),
+    old_book_name VARCHAR2(100),
+    old_author VARCHAR2(100),
+    old_publication_date DATE,
+    timestamp TIMESTAMP DEFAULT SYSTIMESTAMP
+);
+
+-- Create a BEFORE DELETE trigger on Library table
+CREATE OR REPLACE TRIGGER Library_Before_Delete
+BEFORE DELETE ON Library
+FOR EACH ROW
+BEGIN
+    -- Insert old values into Library_Audit table
+    INSERT INTO Library_Audit (audit_id, book_id, operation, old_book_name, old_author, old_publication_date)
+    VALUES (Library_Audit_seq.NEXTVAL, :OLD.book_id, 'DELETE', :OLD.book_name, :OLD.author, :OLD.publication_date);
+END;
+/
+
+-- Create an AFTER UPDATE trigger on Library table
+CREATE OR REPLACE TRIGGER Library_After_Update
+AFTER UPDATE ON Library
+FOR EACH ROW
+BEGIN
+    -- Insert old values into Library_Audit table
+    INSERT INTO Library_Audit (audit_id, book_id, operation, old_book_name, old_author, old_publication_date)
+    VALUES (Library_Audit_seq.NEXTVAL, :OLD.book_id, 'UPDATE', :OLD.book_name, :OLD.author, :OLD.publication_date);
+END;
+/
