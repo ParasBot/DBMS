@@ -1,0 +1,52 @@
+
+create database LIBRARY;
+USE LIBRARY;
+CREATE TABLE Library (
+    BookID INT PRIMARY KEY,
+    Title VARCHAR(255),
+    Author VARCHAR(255),
+    PublishedYear INT
+);
+CREATE TABLE Library_Audit (
+    AuditID INT AUTO_INCREMENT PRIMARY KEY,
+    BookID INT,
+    Title VARCHAR(255),
+    Author VARCHAR(255),
+    PublishedYear INT,
+    OperationType VARCHAR(10),
+    OperationTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO Library (BookID, Title, Author, PublishedYear)
+VALUES
+    (1, 'To Kill a Mockingbird', 'Harper Lee', 1960),
+    (2, '1984', 'George Orwell', 1949),
+    (3, 'The Great Gatsby', 'F. Scott Fitzgerald', 1925),
+    (4, 'Moby Dick', 'Herman Melville', 1851),
+    (5, 'Pride and Prejudice', 'Jane Austen', 1813);
+select * from Library;
+DELIMITER //
+CREATE TRIGGER before_delete_library
+BEFORE DELETE ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (BookID, Title, Author, PublishedYear, OperationType)
+    VALUES (OLD.BookID, OLD.Title, OLD.Author, OLD.PublishedYear, 'DELETE');
+END;
+//
+DELIMITER ;
+DELIMITER //
+CREATE TRIGGER after_update_library
+AFTER UPDATE ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (BookID, Title, Author, PublishedYear, OperationType)
+    VALUES (OLD.BookID, OLD.Title, OLD.Author, OLD.PublishedYear, 'UPDATE');
+END;
+//
+DELIMITER ;
+DELETE FROM Library WHERE BookID = 1;
+DELETE FROM Library WHERE BookID = 3;
+select * from Library_Audit;
+UPDATE Library SET PublishedYear = 1950 WHERE Author = 'George Orwell';
+UPDATE Library SET PublishedYear = 2024 WHERE Author = 'Jane Austen';
+select * from Library_Audit;
