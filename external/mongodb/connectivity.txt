@@ -1,1 +1,187 @@
+mkdir mongodb-crud
+cd mongodb-crud
+npm init -y
+npm install express mongoose body-parser
+
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+// Create an express app
+const app = express();
+app.use(bodyParser.json());
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/crudApp', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('Could not connect to MongoDB...', err));
+
+// Define a Schema and Model
+const studentSchema = new mongoose.Schema({
+    name: String,
+    roll_no: Number,
+    class: String,
+    marks: Number
+});
+const Student = mongoose.model('Student', studentSchema);
+
+// Add a new student
+app.post('/add', async (req, res) => {
+    const { name, roll_no, class, marks } = req.body;
+    const student = new Student({ name, roll_no, class, marks });
+    await student.save();
+    res.send('Student added successfully');
+});
+
+// Get all students
+app.get('/students', async (req, res) => {
+    const students = await Student.find();
+    res.json(students);
+});
+
+// Update student details
+app.put('/update/:id', async (req, res) => {
+    const { name, roll_no, class, marks } = req.body;
+    const student = await Student.findByIdAndUpdate(req.params.id, { name, roll_no, class, marks }, { new: true });
+    res.json(student);
+});
+
+// Delete a student
+app.delete('/delete/:id', async (req, res) => {
+    await Student.findByIdAndDelete(req.params.id);
+    res.send('Student deleted');
+});
+
+// Start the server
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB CRUD Operations</title>
+</head>
+<body>
+    <h1>CRUD Operations with MongoDB</h1>
+
+    <h2>Add Student</h2>
+    <form id="addForm">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="number" id="roll_no" placeholder="Roll No" required>
+        <input type="text" id="class" placeholder="Class" required>
+        <input type="number" id="marks" placeholder="Marks" required>
+        <button type="submit">Add Student</button>
+    </form>
+
+    <h2>Students List</h2>
+    <ul id="studentsList"></ul>
+
+    <script>
+        // Fetch all students and display them
+        async function fetchStudents() {
+            const response = await fetch('http://localhost:3000/students');
+            const students = await response.json();
+            const studentsList = document.getElementById('studentsList');
+            studentsList.innerHTML = '';
+            students.forEach(student => {
+                const li = document.createElement('li');
+                li.textContent = `${student.name} (${student.roll_no}) - ${student.class} - ${student.marks} marks`;
+                li.appendChild(createDeleteButton(student._id));
+                li.appendChild(createEditButton(student));
+                studentsList.appendChild(li);
+            });
+        }
+
+        // Create a delete button for each student
+        function createDeleteButton(id) {
+            const button = document.createElement('button');
+            button.textContent = 'Delete';
+            button.onclick = () => deleteStudent(id);
+            return button;
+        }
+
+        // Create an edit button for each student
+        function createEditButton(student) {
+            const button = document.createElement('button');
+            button.textContent = 'Edit';
+            button.onclick = () => editStudent(student);
+            return button;
+        }
+
+        // Add a student
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const roll_no = document.getElementById('roll_no').value;
+            const className = document.getElementById('class').value;
+            const marks = document.getElementById('marks').value;
+
+            const response = await fetch('http://localhost:3000/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, roll_no, class: className, marks })
+            });
+
+            if (response.ok) {
+                alert('Student added!');
+                fetchStudents();
+            }
+        });
+
+        // Delete a student
+        async function deleteStudent(id) {
+            const response = await fetch(`http://localhost:3000/delete/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('Student deleted!');
+                fetchStudents();
+            }
+        }
+
+        // Edit a student
+        function editStudent(student) {
+            document.getElementById('name').value = student.name;
+            document.getElementById('roll_no').value = student.roll_no;
+            document.getElementById('class').value = student.class;
+            document.getElementById('marks').value = student.marks;
+
+            document.getElementById('addForm').addEventListener('submit', async function update(e) {
+                e.preventDefault();
+
+                const name = document.getElementById('name').value;
+                const roll_no = document.getElementById('roll_no').value;
+                const className = document.getElementById('class').value;
+                const marks = document.getElementById('marks').value;
+
+                const response = await fetch(`http://localhost:3000/update/${student._id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, roll_no, class: className, marks })
+                });
+
+                if (response.ok) {
+                    alert('Student updated!');
+                    fetchStudents();
+                }
+            }, { once: true });
+        }
+
+        // Initial load
+        fetchStudents();
+    </script>
+</body>
+</html>
+
+
+node server.js
 
